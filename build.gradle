@@ -96,12 +96,6 @@ jar {
 	}
 }
 
-sourceSets {
-	main {
-		output.resourcesDir = output.classesDir
-	}
-}
-
 dependencies {
 	compile "codechicken:CodeChickenCore:${mc_ver}-${ccc_version}:dev"
 	compile "codechicken:NotEnoughItems:${mc_ver}-${nei_version}:dev"

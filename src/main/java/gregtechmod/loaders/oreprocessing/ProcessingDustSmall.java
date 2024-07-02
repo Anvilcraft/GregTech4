@@ -7,8 +7,10 @@ import gregtechmod.api.enums.OrePrefixes;
 import gregtechmod.api.enums.SubTag;
 import gregtechmod.api.interfaces.IOreRecipeRegistrator;
 import gregtechmod.api.recipe.RecipeFactory;
+import gregtechmod.api.util.GT_Log;
 import gregtechmod.api.util.GT_ModHandler;
 import gregtechmod.api.util.GT_OreDictUnificator;
+import gregtechmod.api.util.GT_RecipeException;
 import gregtechmod.api.util.GT_Shapeless_Recipe;
 import gregtechmod.api.util.GT_Utility;
 import gregtechmod.api.util.OreDictEntry;
@@ -30,27 +32,36 @@ public class ProcessingDustSmall implements IOreRecipeRegistrator {
 		for (OreDictEntry entry : entries) {
 			Materials aMaterial = this.getMaterial(aPrefix, entry);
 			if (this.isExecutable(aPrefix, aMaterial)) {
-				ItemStack ingot;
-				RecipeHandler.executeOnFinish(() -> GameRegistry.addRecipe(new GT_Shapeless_Recipe(GT_OreDictUnificator.get(OrePrefixes.dust, aMaterial, 1L), new Object[] { entry.oreDictName, entry.oreDictName, entry.oreDictName, entry.oreDictName })));
-				if (!aMaterial.contains(SubTag.NO_SMELTING) && (ingot = GT_OreDictUnificator.get(OrePrefixes.ingot, aMaterial, 1L)) != null) {
-					if (aMaterial.mBlastFurnaceRequired) {
-						RecipeFactory<?> factory = RecipeMaps.BLAST_FURNACE.factory()
-							.minTemperature(aMaterial.mBlastFurnaceTemp)
-							.EUt(120).duration(Math.max(aMaterial.getMass() / 40, 1) * aMaterial.mBlastFurnaceTemp)
-							.input(RecipeEntry.fromStacks(4, entry.ores, Match.STRICT));
-						if (aMaterial.mBlastFurnaceTemp > 1750)
-							factory.output(GT_OreDictUnificator.get(OrePrefixes.ingotHot, aMaterial));
-						else
-							factory.output(ingot);
-						factory.buildAndRegister();
-					} else {
-						RecipeMaps.ALLOY_SMELTING.factory().EUt(3).duration(130)
-							.input(RecipeEntry.fromStacks(4, entry.ores, Match.STRICT))
-							.output(ingot)
-							.buildAndRegister();
-						
-						GT_ModHandler.addInductionSmelterRecipe(GT_Utility.copyAmount(4L, entry.ores.get(0)), null, ingot, null, 130 * 3 * 2, 0);
+				try {
+					ItemStack ingot;
+					RecipeHandler.executeOnFinish(() -> GameRegistry.addRecipe(new GT_Shapeless_Recipe(
+							GT_OreDictUnificator.get(OrePrefixes.dust, aMaterial, 1L), new Object[] { entry.oreDictName,
+									entry.oreDictName, entry.oreDictName, entry.oreDictName })));
+					if (!aMaterial.contains(SubTag.NO_SMELTING)
+							&& (ingot = GT_OreDictUnificator.get(OrePrefixes.ingot, aMaterial, 1L)) != null) {
+						if (aMaterial.mBlastFurnaceRequired) {
+							RecipeFactory<?> factory = RecipeMaps.BLAST_FURNACE.factory()
+									.minTemperature(aMaterial.mBlastFurnaceTemp)
+									.EUt(120)
+									.duration(Math.max(aMaterial.getMass() / 40, 1) * aMaterial.mBlastFurnaceTemp)
+									.input(RecipeEntry.fromStacks(4, entry.ores, Match.STRICT));
+							if (aMaterial.mBlastFurnaceTemp > 1750)
+								factory.output(GT_OreDictUnificator.get(OrePrefixes.ingotHot, aMaterial));
+							else
+								factory.output(ingot);
+							factory.buildAndRegister();
+						} else {
+							RecipeMaps.ALLOY_SMELTING.factory().EUt(3).duration(130)
+									.input(RecipeEntry.fromStacks(4, entry.ores, Match.STRICT))
+									.output(ingot)
+									.buildAndRegister();
+
+							GT_ModHandler.addInductionSmelterRecipe(GT_Utility.copyAmount(4L, entry.ores.get(0)), null,
+									ingot, null, 130 * 3 * 2, 0);
+						}
 					}
+				} catch (GT_RecipeException e) {
+					GT_Log.log.warn("Failed to register a recipe for Oredict entry " + entry.oreDictName);
 				}
 			}
 		}

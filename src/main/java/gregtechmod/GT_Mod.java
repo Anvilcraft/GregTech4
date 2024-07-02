@@ -253,11 +253,11 @@ public class GT_Mod implements IGT_Mod {
     			GT_Log.log.catching(e);
     		}
     	}
-    	File tFile = new File(new File(aEvent.getModConfigurationDirectory(), "GregTech"), "GregTech.cfg");
+    	File tFile = new File(new File(aEvent.getModConfigurationDirectory(), "GregTechAddon"), "GregTech.cfg");
     	Configuration tConfig1 = new Configuration(tFile);
     	tConfig1.load();
     	
-    	File gtDir = new File(aEvent.getModConfigurationDirectory(), "GregTech");
+    	File gtDir = new File(aEvent.getModConfigurationDirectory(), "GregTechAddon");
 		GregTech_API.sRecipeFile 			= new GT_Config(new Configuration(new File(gtDir, "DynamicConfig.cfg")));
 		GregTech_API.sMachineFile 			= new GT_Config(new Configuration(new File(gtDir, "MachineStats.cfg")));
 		GregTech_API.sWorldgenFile 			= new GT_Config(new Configuration(new File(gtDir, "WorldGeneration.cfg")));

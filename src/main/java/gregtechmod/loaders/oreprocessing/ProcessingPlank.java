@@ -6,8 +6,10 @@ import gregtechmod.GT_Mod;
 import gregtechmod.api.enums.Materials;
 import gregtechmod.api.enums.OrePrefixes;
 import gregtechmod.api.interfaces.IOreRecipeRegistrator;
+import gregtechmod.api.util.GT_Log;
 import gregtechmod.api.util.GT_ModHandler;
 import gregtechmod.api.util.GT_OreDictUnificator;
+import gregtechmod.api.util.GT_RecipeException;
 import gregtechmod.api.util.OreDictEntry;
 
 import gregtechmod.common.recipe.RecipeEntry;
@@ -28,29 +30,35 @@ public class ProcessingPlank implements IOreRecipeRegistrator {
 		for (OreDictEntry entry : entries) {
 			Materials aMaterial = this.getMaterial(aPrefix, entry);
 			if (this.isExecutable(aPrefix, aMaterial)) {
-				if (aMaterial == Materials.Wood) {
-					RecipeMaps.LATHE.factory().EUt(8).duration(10)
-						.input(RecipeEntry.fromStacks(entry.ores, Match.STRICT))
-						.output(GT_OreDictUnificator.get(OrePrefixes.stick,  Materials.Wood, 2L))
-						.buildAndRegister();
-					RecipeMaps.ASSEMBLING.factory().EUt(1).duration(1600)
-						.input(RecipeEntry.fromStacks(8, entry.ores, Match.STRICT))
-						.input(GT_OreDictUnificator.get(OrePrefixes.dust,  Materials.Redstone, 1L))
-						.output(new ItemStack(Blocks.noteblock, 1))
-						.buildAndRegister();
-					RecipeMaps.ASSEMBLING.factory().EUt(1).duration(1600)
-						.input(RecipeEntry.fromStacks(8, entry.ores, Match.STRICT))
-						.input(GT_OreDictUnificator.get(OrePrefixes.gem,  Materials.Diamond, 1L))
-						.output(new ItemStack(Blocks.jukebox, 1))
-						.buildAndRegister();
-					
-					GT_ModHandler.addPulverisationRecipe(entry, 1, GT_OreDictUnificator.get(OrePrefixes.dust,  Materials.Wood, 1L), null, 0);
-					
-					for (ItemStack aStack : entry.ores) {
-						if (aStack.getItem() instanceof ItemBlock && GT_Mod.sPlankStackSize < aStack.getMaxStackSize()) {
-							aStack.getItem().setMaxStackSize(GT_Mod.sPlankStackSize);
+				try {
+					if (aMaterial == Materials.Wood) {
+						RecipeMaps.LATHE.factory().EUt(8).duration(10)
+								.input(RecipeEntry.fromStacks(entry.ores, Match.STRICT))
+								.output(GT_OreDictUnificator.get(OrePrefixes.stick, Materials.Wood, 2L))
+								.buildAndRegister();
+						RecipeMaps.ASSEMBLING.factory().EUt(1).duration(1600)
+								.input(RecipeEntry.fromStacks(8, entry.ores, Match.STRICT))
+								.input(GT_OreDictUnificator.get(OrePrefixes.dust, Materials.Redstone, 1L))
+								.output(new ItemStack(Blocks.noteblock, 1))
+								.buildAndRegister();
+						RecipeMaps.ASSEMBLING.factory().EUt(1).duration(1600)
+								.input(RecipeEntry.fromStacks(8, entry.ores, Match.STRICT))
+								.input(GT_OreDictUnificator.get(OrePrefixes.gem, Materials.Diamond, 1L))
+								.output(new ItemStack(Blocks.jukebox, 1))
+								.buildAndRegister();
+
+						GT_ModHandler.addPulverisationRecipe(entry, 1,
+								GT_OreDictUnificator.get(OrePrefixes.dust, Materials.Wood, 1L), null, 0);
+
+						for (ItemStack aStack : entry.ores) {
+							if (aStack.getItem() instanceof ItemBlock
+									&& GT_Mod.sPlankStackSize < aStack.getMaxStackSize()) {
+								aStack.getItem().setMaxStackSize(GT_Mod.sPlankStackSize);
+							}
 						}
 					}
+				} catch (GT_RecipeException e) {
+					GT_Log.log.warn("Failed to register a recipe for Oredict entry " + entry.oreDictName);
 				}
 			}
 		}

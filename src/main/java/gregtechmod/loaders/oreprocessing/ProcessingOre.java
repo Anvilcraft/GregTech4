@@ -10,8 +10,10 @@ import gregtechmod.api.enums.OrePrefixes;
 import gregtechmod.api.enums.SubTag;
 import gregtechmod.api.interfaces.IOreRecipeRegistrator;
 import gregtechmod.api.recipe.RecipeFactory;
+import gregtechmod.api.util.GT_Log;
 import gregtechmod.api.util.GT_ModHandler;
 import gregtechmod.api.util.GT_OreDictUnificator;
+import gregtechmod.api.util.GT_RecipeException;
 import gregtechmod.api.util.GT_Utility;
 import gregtechmod.api.util.OreDictEntry;
 
@@ -40,6 +42,7 @@ public class ProcessingOre implements IOreRecipeRegistrator {
 		for (OreDictEntry entry : entries) {
 			Materials aMaterial = this.getMaterial(aPrefix, entry);
 			if (this.isExecutable(aPrefix, aMaterial)) {
+				try {
 				int mult = aPrefix != OrePrefixes.oreNether && aPrefix != OrePrefixes.oreDense ? 1 : 2;
 				
 				if (aMaterial == Materials.Oilsands) {
@@ -70,6 +73,9 @@ public class ProcessingOre implements IOreRecipeRegistrator {
 					if (aStack.getItem() instanceof ItemBlock && aStack.getMaxStackSize() > GT_Mod.sOreStackSize)
 						aStack.getItem().setMaxStackSize(GT_Mod.sOreStackSize);
 				}
+				} catch (GT_RecipeException e) {
+					GT_Log.log.warn("Failed to register a recipe for Oredict entry " + entry.oreDictName);
+				}
 			}
 		}
 	}
@@ -83,7 +89,7 @@ public class ProcessingOre implements IOreRecipeRegistrator {
 		}
 	}
 	
-	private static boolean registerStandardOreRecipes(OrePrefixes aPrefix, Materials aMaterial, OreDictEntry entry, int aMultiplier) {
+	private static boolean registerStandardOreRecipes(OrePrefixes aPrefix, Materials aMaterial, OreDictEntry entry, int aMultiplier) throws GT_RecipeException {
 		if (aMaterial != null) {
 			Materials tMaterial = aMaterial.mOreReplacement;
 			Materials tPrimaryByMaterial = null;
